@@ -1,7 +1,7 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
@@ -12,6 +12,7 @@ $VERSION = '0.05';
 #                       Between releases a few comments seem to have
 #                       gone back an hour on use.perl!!!
 #	0.05	19/04/2004	Test::More added as a prerequisites for PPMs
+#	0.06	20/04/2004	date/time tests removed to use.perl odd behaviour
 #####################################################################
 
 #----------------------------------------------------------------------------

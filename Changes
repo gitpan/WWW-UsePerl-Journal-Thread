@@ -1,5 +1,12 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.06  20/04/2004
+	- date/time testing removed due to odd behaviour with use.perl times
+
+0.05  19/04/2004
+	- Test::More added as a prerequisites for PPMs
+	- Fixed Abstract in Makefile.PL
+
 0.04  10/11/2003
 	- Updated Test::Pod requirement
 	- Between releases a few comments seem to have
