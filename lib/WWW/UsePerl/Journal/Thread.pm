@@ -1,13 +1,16 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
 #   0.02   14/08/2003   POD updates and fixes
 #   0.03   08/10/2003	META.yml added
 #						POD updates
+#   0.04   10/11/2003	Updated Test::Pod requirement
+#                       Between releases a few comments seem to have
+#                       gone back an hour on use.perl!!!
 #####################################################################
 
 #----------------------------------------------------------------------------

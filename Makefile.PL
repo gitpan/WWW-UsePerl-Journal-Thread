@@ -12,7 +12,7 @@ WriteMakefile(
 	}, # e.g., Module::Name => 1.1
     ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
       (ABSTRACT_FROM => 'lib/WWW/UsePerl/Journal/Thread.pm', # retrieve abstract from module
-       AUTHOR     => 'Barbie <barbie@cpan.org>') : ()),
+       AUTHOR     => 'Barbie <modules@missbarbell.co.uk>') : ()),
     'LIBS'		=> [''], # e.g., '-lm'
     'DEFINE'		=> '', # e.g., '-DHAVE_SOMETHING'
 	# Insert -I. if you add *.h files later:

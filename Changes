@@ -1,5 +1,10 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.04  10/11/2003
+	- Updated Test::Pod requirement
+	- Between releases a few comments seem to have
+	  gone back an hour on use.perl!!!
+
 0.03  Wed Oct  8 13:04:18 GMTDT 2003
 	- META.yml added to distribution
 	- POD updates

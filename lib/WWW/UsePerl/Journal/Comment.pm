@@ -240,8 +240,7 @@ sub _get_content {
 	$self->{content} =~ s/(<(P|BR)>){2,}/<P>/gi;	# remove repeated whitespace formatting
 }
 
-sub DESTROY {
-}
+sub DESTROY {}
 
 1;
 
