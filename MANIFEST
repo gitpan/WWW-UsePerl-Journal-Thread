@@ -1,0 +1,10 @@
+Changes
+COPYING
+lib/WWW/UsePerl/Journal/Thread.pm
+lib/WWW/UsePerl/Journal/Comment.pm
+MANIFEST
+Makefile.PL
+README
+t/01base.t
+t/10thread.t
+t/90podtest.t
