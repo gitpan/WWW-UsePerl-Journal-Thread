@@ -1,5 +1,9 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.07  22/04/2004
+	- Date in comment wasn't ... d'oh!
+	- Date regex was balking. Fixed it up to be more economical and faster
+
 0.06  20/04/2004
 	- date/time testing removed due to odd behaviour with use.perl times
 

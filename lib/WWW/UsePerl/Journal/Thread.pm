@@ -1,7 +1,7 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
@@ -13,6 +13,8 @@ $VERSION = '0.06';
 #                       gone back an hour on use.perl!!!
 #	0.05	19/04/2004	Test::More added as a prerequisites for PPMs
 #	0.06	20/04/2004	date/time tests removed to use.perl odd behaviour
+#	0.07	22/04/2004	regex was balking on date. Fixed it to be more
+#						economical and faster.
 #####################################################################
 
 #----------------------------------------------------------------------------
@@ -187,7 +189,7 @@ sub _commenthash {
 		$url = USEPERL . "/~$user/journal/" . $self->{entry};
 	}
 
-#print STDERR "\n$url\n";
+#print STDERR "\n#url=[$url]\n";
 	my $content = $self->{j}->{ua}->request(GET $url)->content;
 	die "could not create comment list" unless $content;
 
@@ -206,6 +208,7 @@ sub _commenthash {
 		!migxs ) {
 
 		my ($cid,$subject,$score,$username,$uid,$date) = ($1,$2,$3,$4,$5,$6);
+#print STDERR "\n#atts=[$cid,$subject,$score,$username,$uid,$date]\n";
 		my ($year, $month, $day, $hr, $mi) = $date =~ m!
 		  (\d+)\.(\d+)\.(\d+)	  .*?	(\d+):(\d+)
 		!smx;
@@ -241,6 +244,8 @@ sub _commenthash {
 
 	foreach ( @pids ) {
 		my ($pid,$cid) = (m!pid=(\d+)\#(\d+)!);
+#print STDERR "\n#pid=[$pid], cid=[$cid]\n";
+#print STDERR "\n#content=[$content]\n";
 
 		my ($string,$format);
 		my ($subject,$username,$score,$date) = ($content =~
@@ -249,35 +254,23 @@ sub _commenthash {
 				pid=$pid\#$cid">					# parent/comment id
 				(.*?)</A>.*?						# subject
 				by\s+(.*?)\n.*?						# username
-				\(Score:(\d+),?\s?\w*\).*?			# score
-				>([\w\s\d,\@:]+[AP]M).*?			# date/time - Friday August 08, @01:51PM
-				!migxs);
+				\(Score:(\d+),?\s?\w*\)</FONT>\s+	# score
+				<FONT[^>]+>(.*?)</FONT>				# date/time 
+				!mixs);
 
-		if($date) {
-			my ($dotw, $month, $day, $hr, $mi, $amp) = $date =~ 
-				m!
-					\w+ \s+ (\w+) \s+ (\d+),
-					.*?
-					(\d+):(\d+) \s+ ([AP]M)
-				!smx;
+#print STDERR "\n#fields=[$subject,$username,$score,$date]\n";
+
+		if(my @re = $date =~ m!\w+\s+(\w+)\s+(\d+),.*?(\d+):(\d)\s+([AP]M)!s) {
+			my ($dotw, $month, $day, $hr, $mi, $amp) = @re;
 			$hr += 12 if ($amp eq 'PM');
 			$hr = 0 if $hr == 24;
 #			$year = (localtime)[5];	# this is a guess hack due to this format not depicting the year
 
+#print STDERR "\n#date=[$date] [$dotw,$month,$day,$hr,$mi,$amp]\n";
 			$string = "$dotw $month $day ${hr}:$mi";
 			$format = '%A %B %d %H:%M';
 
 		} else {
-			($subject,$username,$score,$date) = ($content =~
-					m!
-					<BLOCKQUOTE><LI><A\s+HREF="//use.perl.org/comments.pl?.*?;
-					pid=$pid\#$cid">					# parent/comment id
-					(.*?)</A>.*?						# subject
-					by\s+(.*?)\n.*?						# username
-					\(Score:(\d+),?\s?\w*\).*?			# score
-					>([\d\s\.\:]+)</FONT>				# date/time - >2003.05.20 17:31</FONT>
-					!migxs)	unless($date);
-
 			my ($year, $month, $day, $hr, $mi) = $date =~ m!
 			  (\d+)\.(\d+)\.(\d+)	  .*?	(\d+):(\d+)
 			!smx;

@@ -82,8 +82,8 @@ isa_ok($comment,'WWW::UsePerl::Journal::Comment');
 # The date/time test has been removed as use.perl can report 2 different
 # times for the same entry. Each time being an hour apart. For example
 # the entry below can be reported as either of the two date/times below:
-	date	=> 'Thu Aug  7 00:35:00 2003',
-	date	=> 'Thu Aug  7 01:35:00 2003',
+#	date	=> 'Thu Aug  7 00:35:00 2003',
+#	date	=> 'Thu Aug  7 01:35:00 2003',
 # No idea why and no idea how to fix it. May be a locale thing :(
 
 %hash = (
