@@ -1,7 +1,7 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
@@ -11,6 +11,7 @@ $VERSION = '0.04';
 #   0.04   10/11/2003	Updated Test::Pod requirement
 #                       Between releases a few comments seem to have
 #                       gone back an hour on use.perl!!!
+#	0.05	19/04/2004	Test::More added as a prerequisites for PPMs
 #####################################################################
 
 #----------------------------------------------------------------------------
