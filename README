@@ -1,5 +1,5 @@
-WWW::UsePerl::Journal::Thread version 0.02
-==========================================
+WWW::UsePerl::Journal::Thread
+=============================
 
 DESCRIPTION
 
@@ -31,13 +31,13 @@ To install this module type the following:
 
 AUTHOR
 
-Barbie, C<E<lt>modules@missbarbell.co.ukE<gt>>, http://birmingham.pm.org/
+Barbie, <modules@missbarbell.co.uk>, http://birmingham.pm.org/
 
 Miss Barbell Productions.
 
 LATEST REVISION
 
-$Revision: 0.02 $
+$Revision: 0.03 $
 
 COPYRIGHT AND LICENCE
 

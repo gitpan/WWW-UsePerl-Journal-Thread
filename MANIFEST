@@ -8,3 +8,4 @@ README
 t/01base.t
 t/10thread.t
 t/90podtest.t
+META.yml                                Module meta-data (added by MakeMaker)

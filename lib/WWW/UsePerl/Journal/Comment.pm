@@ -4,12 +4,15 @@ package WWW::UsePerl::Journal::Comment;
 #use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
 #   0.02   14/08/2003   POD updates and fixes
+#   0.03   08/10/2003	POD updates
 #####################################################################
+
+#----------------------------------------------------------------------------
 
 =head1 NAME
 
@@ -58,7 +61,7 @@ use overload q{""}  => sub { $_[0]->stringify() };
 
 =over 4
 
-=head2 String Context
+=item String Context
 
 When an object is called directly, stringification occurs. Safer to
 use -E<gt>content instead.
@@ -70,7 +73,7 @@ sub stringify {
     $self->content();
 }
 
-=head2 new()
+=item new()
 
 Each comment is retrieved as an object. Note that the parent object 
 (from WWW::UsePerl::Journal), thread id and comment id are mandatory 
@@ -105,17 +108,17 @@ sub new {
     return $self;
 }
 
-=head2 The Accessors
+=item The Accessors
 
 The following accessor methods are available:
 
-	id	
-	date	
-	subject	
-	user
-	uid
-	score
-	content
+  id  
+  date  
+  subject  
+  user
+  uid
+  score
+  content
 
 All functions can be called to return the current value of the associated
 object variable.
@@ -246,14 +249,6 @@ __END__
 
 =back
 
-=head1 SEE ALSO
-
-L<perl>,
-L<WWW::UsePerl::Journal>
-L<LWP>
-
-F<http://use.perl.org/>
-
 =head1 BUGS & ENHANCEMENTS
 
 No bugs reported as yet.
@@ -264,11 +259,18 @@ patches (if you have one) to E<lt>modules@missbarbell.co.ukE<gt>.
 If you have a suggestion for an enhancement, though I can't promise to
 implement it, please send details to E<lt>modules@missbarbell.co.ukE<gt>.
 
+=head1 SEE ALSO
+
+  L<perl>,
+  L<WWW::UsePerl::Journal>
+  L<LWP>
+
+  F<http://use.perl.org/>
+
 =head1 AUTHOR
 
-Barbie, E<lt>barbie@missbarbell.co.ukE<gt>
-
-for Miss Barbell Productions.
+Barbie, E<lt>barbie@cpan.orgE<gt>
+for Miss Barbell Productions L<http://www.missbarbell.co.uk>.
 
 =head1 CREDITS
 
@@ -277,9 +279,10 @@ and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by Barbie.
+  Copyright (C) 2003 Barbie for Miss Barbell Productions
+  All Rights Reserved.
 
-Distributed under GPL v2. See F<COPYING> included with this distibution.
+  Distributed under GPL v2. See F<COPYING> included with this distibution.
 
 =cut
 

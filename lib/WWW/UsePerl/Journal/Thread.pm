@@ -1,12 +1,16 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
 #   0.02   14/08/2003   POD updates and fixes
+#   0.03   08/10/2003	META.yml added
+#						POD updates
 #####################################################################
+
+#----------------------------------------------------------------------------
 
 =head1 NAME
 
@@ -67,7 +71,7 @@ use constant USEPERL => 'http://use.perl.org';
 
 =over 4
 
-=head2 new()
+=item new()
 
   use WWW::UsePerl::Journal;
   my $journal = WWW::UsePerl::Journal->new('barbie');
@@ -103,7 +107,7 @@ sub new {
     return $self;
 }
 
-=head2 thread()
+=item thread()
 
 Returns the current thread id. 
 
@@ -115,7 +119,7 @@ sub thread {
 	return $self->{thread};
 }
 
-=head2 comment($commentid)
+=item comment($commentid)
 
 Returns a comment object of the given comment ID
 
@@ -128,7 +132,7 @@ sub comment {
     return $entries{$cid};
 }
 
-=head2 commentids()
+=item commentids()
 
 Returns an ascending array of the comment IDs. Can take an optional hash 
 parameter containing {descending=>1} to return a descending array of the 
@@ -302,7 +306,10 @@ sub _ascender { $a <=> $b }
 sub _descender { $b <=> $a }
 
 1;
+
 __END__
+
+=back
 
 =head1 BUGS & ENHANCEMENTS
 
@@ -314,11 +321,18 @@ patches (if you have one) to E<lt>modules@missbarbell.co.ukE<gt>.
 If you have a suggestion for an enhancement, though I can't promise to
 implement it, please send details to E<lt>modules@missbarbell.co.ukE<gt>.
 
+=head1 SEE ALSO
+
+  L<perl>,
+  L<WWW::UsePerl::Journal>
+  L<LWP>
+
+  F<http://use.perl.org/>
+
 =head1 AUTHOR
 
-Barbie, E<lt>barbie@missbarbell.co.ukE<gt>
-
-for Miss Barbell Productions.
+Barbie, E<lt>barbie@cpan.orgE<gt>
+for Miss Barbell Productions L<http://www.missbarbell.co.uk>.
 
 =head1 CREDITS
 
@@ -327,16 +341,9 @@ and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2003 by Barbie.
+  Copyright (C) 2003 Barbie for Miss Barbell Productions
+  All Rights Reserved.
 
-Distributed under GPL v2. See F<COPYING> included with this distibution.
-
-=head1 SEE ALSO
-
-L<perl>,
-L<WWW::UsePerl::Journal>,
-L<LWP>
-
-F<http://use.perl.org/>
+  Distributed under GPL v2. See F<COPYING> included with this distibution.
 
 =cut
