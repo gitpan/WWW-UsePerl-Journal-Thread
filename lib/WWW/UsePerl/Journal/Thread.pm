@@ -1,15 +1,16 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
+#   0.02   14/08/2003   POD updates and fixes
 #####################################################################
 
 =head1 NAME
 
-WWW::UsePerl::Journal::Thread - use.perl.org journal comment thread tool
+WWW::UsePerl::Journal::Thread - Handles the retrieval of UsePerl journal comment threads.
 
 =head1 SYNOPSIS
 
@@ -35,9 +36,12 @@ WWW::UsePerl::Journal::Thread - use.perl.org journal comment thread tool
 
 =head1 DESCRIPTION
 
-Using WWW::UsePerl::Journal to extract entry ids, each id can be used to seed
-a thread of comments. Each comment can be accessed as an object, thus values
-can be retrieve for each object variable.
+A collection of routines to handle the retrieval of threads from a
+UsePerl (L<http://use.perl.org/>) journal entry.
+
+Using WWW::UsePerl::Journal, journal entry ids can be obtain. Each entry id
+can be used to obtain a comment thread. Each comment property is accessed
+via a comment object from within the thread.
 
 =cut
 
@@ -59,17 +63,24 @@ use constant USEPERL => 'http://use.perl.org';
 # -------------------------------------
 # The Public Interface Subs
 
-=head2 The Constructor
+=head1 METHODS
 
-=head3 new()
+=over 4
+
+=head2 new()
 
   use WWW::UsePerl::Journal;
   my $journal = WWW::UsePerl::Journal->new('barbie');
 
   use WWW::UsePerl::Journal::Thread;
-  my $j = WWW::UsePerl::Journal::Thread-E<gt>new(j => $journal, thread => 123456);
+  my $j = WWW::UsePerl::Journal::Thread-E<gt>new(j => $journal, entry => $entryid);
 
-Creates an thread instance for the specified journal entry.
+  use WWW::UsePerl::Journal::Thread;
+  my $j = WWW::UsePerl::Journal::Thread-E<gt>new(j => $journal, thread => $threadid);
+
+Creates an thread instance for the specified journal entry. Note that an entry ID
+and thread ID are different numbers. An entry ID returned from $journal->entryids()
+must use the entry => $entryid form to obtain the correct thread.
 
 =cut
 
@@ -92,7 +103,7 @@ sub new {
     return $self;
 }
 
-=head2 thread
+=head2 thread()
 
 Returns the current thread id. 
 
@@ -104,7 +115,7 @@ sub thread {
 	return $self->{thread};
 }
 
-=head2 comment
+=head2 comment($commentid)
 
 Returns a comment object of the given comment ID
 
@@ -117,11 +128,11 @@ sub comment {
     return $entries{$cid};
 }
 
-=head2 commentids
+=head2 commentids()
 
 Returns an ascending array of the comment IDs. Can take an optional hash 
 parameter containing {descending=>1} to return a descending array of the 
-comment IDs, or {threaded=>1} to return a threaded list.
+comment IDs, or {threaded=>1} to return a thread ordered list.
 
 =cut
 
@@ -323,10 +334,9 @@ Distributed under GPL v2. See F<COPYING> included with this distibution.
 =head1 SEE ALSO
 
 L<perl>,
-L<WWW::UsePerl::Journal>
+L<WWW::UsePerl::Journal>,
+L<LWP>
 
 F<http://use.perl.org/>
-
-F<LWP>
 
 =cut

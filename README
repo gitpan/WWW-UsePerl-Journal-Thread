@@ -1,4 +1,4 @@
-WWW::UsePerl::Journal::Thread version 0.01
+WWW::UsePerl::Journal::Thread version 0.02
 ==========================================
 
 DESCRIPTION
@@ -13,9 +13,8 @@ The distribution requires the following modules:
 
   WWW::UsePerl::Journal => 0.11,
   LWP::UserAgent => 0,
-  HTTP::Cookies => 0
   HTTP::Request::Common => 0
-  Carp => 0
+  Time::Piece => 0,
 
 CHANGES
 
@@ -38,7 +37,7 @@ Miss Barbell Productions.
 
 LATEST REVISION
 
-$Revision: 0.01 $
+$Revision: 0.02 $
 
 COPYRIGHT AND LICENCE
 

@@ -4,10 +4,11 @@ package WWW::UsePerl::Journal::Comment;
 #use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 ### CHANGES #########################################################
 #   0.01   10/08/2003   Initial Release
+#   0.02   14/08/2003   POD updates and fixes
 #####################################################################
 
 =head1 NAME
@@ -34,8 +35,8 @@ WWW::UsePerl::Journal::Comment - Handles the retrieval of UsePerl journal entry 
 
 =head1 DESCRIPTION
 
-A collection of routines to handle the retrieval comments with a
-UsePerl (L<http://use.perl.org/>) journal.
+A collection of routines to handle the retrieval of comments from a
+UsePerl (L<http://use.perl.org/>) journal entry.
 
 =cut
 
@@ -69,12 +70,10 @@ sub stringify {
     $self->content();
 }
 
-=head2 The Constructor
+=head2 new()
 
-=head3 new()
-
-Each comment is retrieved as an object. Note the parent object (from 
-WWW::UsePerl::Journal), thread id and comment id are mandatory 
+Each comment is retrieved as an object. Note that the parent object 
+(from WWW::UsePerl::Journal), thread id and comment id are mandatory 
 requirements to create the object.
 
 =cut
@@ -251,10 +250,9 @@ __END__
 
 L<perl>,
 L<WWW::UsePerl::Journal>
+L<LWP>
 
 F<http://use.perl.org/>
-
-F<LWP>
 
 =head1 BUGS & ENHANCEMENTS
 
