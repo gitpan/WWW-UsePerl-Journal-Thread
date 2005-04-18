@@ -1,21 +1,7 @@
 package WWW::UsePerl::Journal::Thread;
 
 use vars qw($VERSION);
-$VERSION = '0.07';
-
-### CHANGES #########################################################
-#   0.01   10/08/2003   Initial Release
-#   0.02   14/08/2003   POD updates and fixes
-#   0.03   08/10/2003	META.yml added
-#						POD updates
-#   0.04   10/11/2003	Updated Test::Pod requirement
-#                       Between releases a few comments seem to have
-#                       gone back an hour on use.perl!!!
-#	0.05	19/04/2004	Test::More added as a prerequisites for PPMs
-#	0.06	20/04/2004	date/time tests removed to use.perl odd behaviour
-#	0.07	22/04/2004	regex was balking on date. Fixed it to be more
-#						economical and faster.
-#####################################################################
+$VERSION = '0.08';
 
 #----------------------------------------------------------------------------
 
@@ -141,9 +127,11 @@ sub comment {
 
 =item commentids()
 
-Returns an ascending array of the comment IDs. Can take an optional hash 
-parameter containing {descending=>1} to return a descending array of the 
-comment IDs, or {threaded=>1} to return a thread ordered list.
+Returns an ascending array of the comment IDs.
+
+Can take an optional hash containing; {descending=>1} to return a descending 
+list of comment IDs, {ascending=>1} to return an ascending list or 
+{threaded=>1} to return a thread ordered list. 'ascending' being the default.
 
 =cut
 
@@ -309,23 +297,23 @@ __END__
 
 =back
 
-=head1 BUGS & ENHANCEMENTS
+=head1 BUGS, PATCHES & FIXES
 
-No bugs reported as yet.
+There are no known bugs at the time of this release. However, if you spot a
+bug or are experiencing difficulties, that is not explained within the POD
+documentation, please send an email to barbie@cpan.org or submit a bug to the
+RT system (http://rt.cpan.org/). However, it would help greatly if you are 
+able to pinpoint problems or even supply a patch. 
 
-If you think you've found a bug, send details and
-patches (if you have one) to E<lt>modules@missbarbell.co.ukE<gt>.
-
-If you have a suggestion for an enhancement, though I can't promise to
-implement it, please send details to E<lt>modules@missbarbell.co.ukE<gt>.
+Fixes are dependant upon their severity and my availablity. Should a fix not
+be forthcoming, please feel free to (politely) remind me.
 
 =head1 SEE ALSO
 
-  L<perl>,
-  L<WWW::UsePerl::Journal>
-  L<LWP>
+L<WWW::UsePerl::Journal>,
+L<LWP>
 
-  F<http://use.perl.org/>
+F<http://use.perl.org/>
 
 =head1 AUTHOR
 
@@ -339,7 +327,7 @@ and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2003 Barbie for Miss Barbell Productions
+  Copyright (C) 2003-2005 Barbie for Miss Barbell Productions
   All Rights Reserved.
 
   Distributed under GPL v2. See F<COPYING> included with this distibution.

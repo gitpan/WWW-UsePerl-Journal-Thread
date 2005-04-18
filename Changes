@@ -1,27 +1,32 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
-0.07  22/04/2004
+0.08	Tue Apr 05 2005
+	- Updated test to reflect changes in use.perl
+	- Added test scripts
+	- Aligned version numbers
+
+0.07	22/04/2004
 	- Date in comment wasn't ... d'oh!
 	- Date regex was balking. Fixed it up to be more economical and faster
 
-0.06  20/04/2004
+0.06	20/04/2004
 	- date/time testing removed due to odd behaviour with use.perl times
 
-0.05  19/04/2004
+0.05	19/04/2004
 	- Test::More added as a prerequisites for PPMs
 	- Fixed Abstract in Makefile.PL
 
-0.04  10/11/2003
+0.04	10/11/2003
 	- Updated Test::Pod requirement
 	- Between releases a few comments seem to have
 	  gone back an hour on use.perl!!!
 
-0.03  Wed Oct  8 13:04:18 GMTDT 2003
+0.03	Wed Oct  8 13:04:18 GMTDT 2003
 	- META.yml added to distribution
 	- POD updates
 
-0.02  Thu Aug 14 12:23:02 GMTDT 2003
+0.02	Thu Aug 14 12:23:02 GMTDT 2003
 	- POD updates and fixes  
 
-0.01  Wed Aug 13 09:26:53 GMTDT 2003
+0.01	Wed Aug 13 09:26:53 GMTDT 2003
 	- original version; based upon WWW::UsePerl::Journal 

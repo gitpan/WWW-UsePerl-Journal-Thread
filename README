@@ -12,9 +12,9 @@ DEPENDENCIES
 The distribution requires the following modules:
 
   WWW::UsePerl::Journal => 0.11,
-  LWP::UserAgent => 0,
+  LWP::UserAgent        => 0,
   HTTP::Request::Common => 0
-  Time::Piece => 0,
+  Time::Piece           => 0,
 
 CHANGES
 
@@ -35,13 +35,9 @@ Barbie, <modules@missbarbell.co.uk>, http://birmingham.pm.org/
 
 Miss Barbell Productions.
 
-LATEST REVISION
-
-$Revision: 0.03 $
-
 COPYRIGHT AND LICENCE
 
-Copyright (C) 2003 Barbie & Miss Barbell Productions.
+Copyright (C) 2003-2005 Barbie & Miss Barbell Productions.
 All Rights Reserved.
 
 Distributed under GPL v2. See F<COPYING> included with this distibution.

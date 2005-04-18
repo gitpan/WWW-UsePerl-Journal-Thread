@@ -1,16 +1,10 @@
 package WWW::UsePerl::Journal::Comment;
 
-#use strict;
-#use warnings;
+use strict;
+use warnings;
 
-use vars qw($VERSION);
-$VERSION = '0.03';
-
-### CHANGES #########################################################
-#   0.01   10/08/2003   Initial Release
-#   0.02   14/08/2003   POD updates and fixes
-#   0.03   08/10/2003	POD updates
-#####################################################################
+use vars qw($VERSION $AUTOLOAD);
+$VERSION = '0.08';
 
 #----------------------------------------------------------------------------
 
@@ -61,7 +55,7 @@ use overload q{""}  => sub { $_[0]->stringify() };
 
 =over 4
 
-=item String Context
+=item stringify - For String Context
 
 When an object is called directly, stringification occurs. Safer to
 use -E<gt>content instead.
@@ -248,23 +242,23 @@ __END__
 
 =back
 
-=head1 BUGS & ENHANCEMENTS
+=head1 BUGS, PATCHES & FIXES
 
-No bugs reported as yet.
+There are no known bugs at the time of this release. However, if you spot a
+bug or are experiencing difficulties, that is not explained within the POD
+documentation, please send an email to barbie@cpan.org or submit a bug to the
+RT system (http://rt.cpan.org/). However, it would help greatly if you are 
+able to pinpoint problems or even supply a patch. 
 
-If you think you've found a bug, send details and
-patches (if you have one) to E<lt>modules@missbarbell.co.ukE<gt>.
-
-If you have a suggestion for an enhancement, though I can't promise to
-implement it, please send details to E<lt>modules@missbarbell.co.ukE<gt>.
+Fixes are dependant upon their severity and my availablity. Should a fix not
+be forthcoming, please feel free to (politely) remind me.
 
 =head1 SEE ALSO
 
-  L<perl>,
-  L<WWW::UsePerl::Journal>
-  L<LWP>
+L<WWW::UsePerl::Journal>,
+L<LWP>
 
-  F<http://use.perl.org/>
+F<http://use.perl.org/>
 
 =head1 AUTHOR
 
@@ -273,12 +267,12 @@ for Miss Barbell Productions L<http://www.missbarbell.co.uk>.
 
 =head1 CREDITS
 
-Russell Matbouli, for creating WWW::UsePerl::Journal in the first place 
+Russell Matbouli, for creating L<WWW::UsePerl::Journal> in the first place 
 and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2003 Barbie for Miss Barbell Productions
+  Copyright (C) 2003-2005 Barbie for Miss Barbell Productions
   All Rights Reserved.
 
   Distributed under GPL v2. See F<COPYING> included with this distibution.
