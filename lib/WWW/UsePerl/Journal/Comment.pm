@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 #----------------------------------------------------------------------------
 
@@ -47,6 +47,24 @@ use WWW::UsePerl::Journal;
 
 use constant USEPERL => 'http://use.perl.org';
 use overload q{""}  => sub { $_[0]->stringify() };
+
+# -------------------------------------
+# Variables
+
+my %months = (
+	'January'   => 1,
+	'February'  => 2,
+	'March'     => 3,
+	'April'     => 4,
+	'May'       => 5,
+	'June'      => 6,
+	'July'      => 7,
+	'August'    => 8,
+	'September' => 9,
+	'October'   => 10,
+	'November'  => 11,
+	'December'  => 12,
+);
 
 # -------------------------------------
 # The Public Interface Subs
@@ -94,10 +112,16 @@ sub new {
     );
     my %opts = (@_);
 
-    die "No parent object" 
+    die "No parent object"
 	    unless exists $opts{j} and $opts{j}->isa('WWW::UsePerl::Journal');
 
     my $self = bless {%defaults, %opts}, $class;
+
+    if($self->{content}) {
+        $self->{content} =~ s!(\s+<(?:p|br /)>)*$!!gi;	# remove trailing whitespace formatting
+        $self->{content} =~ s!\s+(<(p|br /)>)!$1!gi;	# remove whitespace before whitespace formatting
+        $self->{content} =~ s!(<(p|br /)>){2,}!<p>!gi;	# remove repeated whitespace formatting
+    }
 
     return $self;
 }
@@ -119,10 +143,7 @@ object variable.
 
 =cut
 
-my @autosubs = qw(
-	id	date	subject	user	uid	score	content
-);
-my %autosubs = map {$_ => 1} @autosubs;
+my %autosubs = map {$_ => 1} qw(id date subject user uid score content);
 
 sub AUTOLOAD {
 	no strict 'refs';
@@ -156,82 +177,61 @@ sub _get_content {
     my $ID      = $self->{id};
     my $thread  = $self->{tid};
 
-    die "No thread specified\n"	unless($thread);
+    return $self->{j}->error("No thread specified")	unless($thread);
 
-#print STDERR USEPERL . "/comments.pl?sid=$thread&cid=$ID\n";
-    my $content = $self->{j}->{ua}->request(
-        GET USEPERL . "/comments.pl?sid=$thread&cid=$ID")->content;
-    die "Error getting entry\n" unless $content;
-    die "Comment $ID does not exist\n" 
+    my $url = USEPERL . "/comments.pl?sid=$thread&cid=$ID";
+    my $content = $self->{j}->{ua}->request(GET $url)->content;
+
+#    print STDERR "\n#_get_content: url=[$url]\n";
+#    print STDERR "\n#_get_content: content=[$content]\n";
+
+    return $self->{j}->error("Error getting entry") unless $content;
+    return $self->{j}->error( "Comment $ID does not exist") 
         if $content =~ m#Nothing for you to see here.  Please move along.#i;
 
-
-	# remember there are different presentations for dates!!!!
+    # remember there are different presentations for dates!!!!
 
 	my ($string,$format);
 	$content =~ s/\n//g;
-	my @fields = ( $content =~ 
-		m!
-			<A\s+NAME="(\d+)">						# comment id
-			<B>([^<]*)</B></A>						# subject
-			\s*\(Score:(\d+),?\s?\w*\).*?			# score
-			<A\s+HREF="//use.perl.org/~([^"]*)">.*?	# username
-			\((\d+)\)</A>.*?						# userid
-			on\s+([\d\s\.\:]+).*?					# date/time - 2003.05.20 17:31
-            comments.pl?.*?;cid=\1">.*?				# back reference to contain the block
-			<TABLE.*?><TR.*?><TD.*?>(.*?)\s*</TD></TR></TABLE>
+	my @fields = ( $content =~ m!
+            <li\s+id="tree_(\d+)"\s+class="comment">        # comment id
+    .*?     <h4><a\s+id="comment_link_\1"[^>]+>([^<]*)</a>  # subject
+    .*?     <span\s+id="comment_score_\1"\s+class="score">
+            \(Score:(\d+),?\s?\w*\)</span></h4>             # score
+	.*?		<a\s+href="//use.perl.org/~([^\"/]*)/?">        # username
+	.*?		\((\d+)\)</a>?						            # userid
+	.*?		on\s+([\w\d\s\@,.:]+)      					    # date/time - "2003.05.20 17:31" or "Friday August 08 2003, @01:51PM"
+    .*?     <div\s+id="comment_body_\1">(.*?)</div>         # text
+    .*?     (<a\s+href="//use.perl.org/comments.pl?sid=(\d+).*?pid=\1">Reply to This</a>)?
+    .*?     (?:<a\s+href="//use.perl.org/comments.pl?sid=\8.*?cid=(\d+)">Parent</a>)?
         !mixs );
 
-	if(@fields) {
-		my ($year, $month, $day, $hr, $mi) = $fields[5] =~ m!
-		  (\d+)\.(\d+)\.(\d+)	  .*?	(\d+):(\d+)
-		!smx;
-		$string = "$year $month $day ${hr}:$mi";
-		$format = '%Y %m %d %H:%M';
+	return  unless(@fields);
 
-	} else {
+	my ($year, $month, $day, $hr, $mi) = $fields[5] =~ m! (\d+)\.(\d+)\.(\d+) .*? (\d+):(\d+) !smx;
+    unless($day) {
+        my $amp;
+    	($month, $day, $year, $hr, $mi, $amp) = $fields[5] =~ m! \w+\s+ (\w+) \s+(\d+)\s*(\d*), \s+ @(\d+):(\d+)([AP]M) !smx;
+        $month = $months{$month};
+    	$year = (localtime)[5]  unless($year);	# current year formatting drops the year.
+        $hr += 12 if ($amp eq 'PM');
+        $hr = 0 if $hr == 24;
+    }
 
-		@fields = ( $content =~ 
-			m!
-				<A\s+NAME="(\d+)">						# comment id
-				<B>([^<]*)</B></A>						# subject
-				\s*\(Score:(\d+),?\s?\w*\).*?			# score
-				<A\s+HREF="//use.perl.org/~([^"]*)">.*?	# username
-				\((\d+)\)</A>.*?						# userid
-				on\s+([\w\s\d,\@:]+[AP]M).*?			# date/time - Friday August 08, @01:51PM
-				comments.pl?.*?;cid=\1">.*?				# back reference to contain the block
-				<TABLE.*?><TR.*?><TD.*?>(.*?)\s*</TD></TR></TABLE>
-			!mixs );
-
-		my ($dotw, $month, $day, $hr, $mi, $amp) = $fields[5] =~ 
-			m!
-				\w+ \s+ (\w+) \s+ (\d+),
-				.*?
-				(\d+):(\d+) \s+ ([AP]M)
-			!smx;
-		$hr += 12 if ($amp eq 'PM');
-		$hr = 0 if $hr == 24;
-#		$year = (localtime)[5];	# this is a guess hack due to this format not depicting the year
-
-		$string = "$dotw $month $day ${hr}:$mi";
-		$format = '%A %B %d %H:%M';
-	}
-
-	$fields[5] = Time::Piece->strptime($string,$format);
+	$self->{date} = Time::Piece->strptime( "$year $month $day ${hr}:$mi", '%Y %m %d %H:%M' );
 
 	# just in case we overwrite good stuff
 	$self->{subject}	= $fields[1]	unless($self->{subject});
 	$self->{score}		= $fields[2]	unless($self->{score});
 	$self->{user}		= $fields[3]	unless($self->{user});
 	$self->{uid}		= $fields[4]	unless($self->{uid});
-	$self->{date}		= $fields[5]	unless($self->{date});
 	$self->{content}	= $fields[6]	unless($self->{content});
 
 	return	unless($self->{content});				# What no content!
 
-	$self->{content} =~ s/(\s+<(?:P|BR)>)*$//gi;	# remove trailing whitespace formatting
-	$self->{content} =~ s/\s+(<(P|BR)>)/$1/gi;		# remove whitespace before whitespace formatting
-	$self->{content} =~ s/(<(P|BR)>){2,}/<P>/gi;	# remove repeated whitespace formatting
+	$self->{content} =~ s!(\s+<(?:p|br /)>)*$!!gi;	# remove trailing whitespace formatting
+	$self->{content} =~ s!\s+(<(p|br /)>)!$1!gi;	# remove whitespace before whitespace formatting
+	$self->{content} =~ s!(<(p|br /)>){2,}!<p>!gi;	# remove repeated whitespace formatting
 }
 
 sub DESTROY {}
@@ -242,16 +242,19 @@ __END__
 
 =back
 
-=head1 BUGS, PATCHES & FIXES
+=head1 SUPPORT
 
 There are no known bugs at the time of this release. However, if you spot a
-bug or are experiencing difficulties, that is not explained within the POD
-documentation, please send an email to barbie@cpan.org or submit a bug to the
-RT system (http://rt.cpan.org/). However, it would help greatly if you are 
-able to pinpoint problems or even supply a patch. 
+bug or are experiencing difficulties that are not explained within the POD
+documentation, please submit a bug to the RT system (see link below). However,
+it would help greatly if you are able to pinpoint problems or even supply a 
+patch. 
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
-be forthcoming, please feel free to (politely) remind me.
+be forthcoming, please feel free to (politely) remind me by sending an email
+to barbie@cpan.org .
+
+RT: L<http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-UsePerl-Journal-Thread>
 
 =head1 SEE ALSO
 
@@ -260,22 +263,25 @@ L<LWP>
 
 F<http://use.perl.org/>
 
-=head1 AUTHOR
-
-Barbie, E<lt>barbie@cpan.orgE<gt>
-for Miss Barbell Productions L<http://www.missbarbell.co.uk>.
-
 =head1 CREDITS
 
 Russell Matbouli, for creating L<WWW::UsePerl::Journal> in the first place 
 and giving me the idea to extend it further.
 
+=head1 AUTHOR
+
+  Barbie, <barbie@cpan.org>
+  for Miss Barbell Productions <http://www.missbarbell.co.uk>.
+
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2003-2005 Barbie for Miss Barbell Productions
-  All Rights Reserved.
+  Copyright (C) 2003-2007 Barbie for Miss Barbell Productions.
 
-  Distributed under GPL v2. See F<COPYING> included with this distibution.
+  This module is free software; you can redistribute it and/or 
+  modify it under the same terms as Perl itself.
+
+The full text of the licenses can be found in the F<Artistic> and
+F<COPYING> files included with this module, or in L<perlartistic> and
+L<perlgpl> in Perl 5.8.1 or later.
 
 =cut
-

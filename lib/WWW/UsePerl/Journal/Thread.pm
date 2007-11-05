@@ -1,7 +1,10 @@
 package WWW::UsePerl::Journal::Thread;
 
+use strict;
+use warnings;
+
 use vars qw($VERSION);
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 #----------------------------------------------------------------------------
 
@@ -45,8 +48,6 @@ via a comment object from within the thread.
 # -------------------------------------
 # Library Modules
 
-use strict;
-use warnings;
 use LWP::UserAgent;
 use HTTP::Request::Common;
 use Time::Piece;
@@ -56,6 +57,21 @@ use WWW::UsePerl::Journal::Comment;
 # Variables
 
 use constant USEPERL => 'http://use.perl.org';
+
+my %months = (
+	'January'   => 1,
+	'February'  => 2,
+	'March'     => 3,
+	'April'     => 4,
+	'May'       => 5,
+	'June'      => 6,
+	'July'      => 7,
+	'August'    => 8,
+	'September' => 9,
+	'October'   => 10,
+	'November'  => 11,
+	'December'  => 12,
+);
 
 # -------------------------------------
 # The Public Interface Subs
@@ -92,7 +108,7 @@ sub new {
     );
     my %opts = (@_);
 
-    die "No parent object" 
+    die "No parent object"
 	    unless exists $opts{j} and $opts{j}->isa('WWW::UsePerl::Journal');
 
     my $self = bless {%defaults, %opts}, $class;
@@ -120,7 +136,7 @@ Returns a comment object of the given comment ID
 
 sub comment {
     my $self = shift;
-    my $cid = shift;
+    my $cid  = shift;
 	my %entries = $self->_commenthash;
     return $entries{$cid};
 }
@@ -139,9 +155,8 @@ sub commentids {
     my $self = shift;
 	my $hash = shift;
 	my ($key,$sorter) = ('_commentids_asc',\&_ascender);
-
-	($key,$sorter) = ('_commentids_dsc',\&_descender)	if(defined $hash && $hash->{descending});
-	($key,$sorter) = ('_commentids_thd',sub{})			if(defined $hash && $hash->{threaded});
+   	   ($key,$sorter) = ('_commentids_dsc',\&_descender)	if(defined $hash && $hash->{descending});
+	   ($key,$sorter) = ('_commentids_thd',sub{})			if(defined $hash && $hash->{threaded});
 
     $self->{$key} ||= do {
         my %entries = $self->_commenthash;
@@ -150,8 +165,10 @@ sub commentids {
         foreach (sort $sorter keys %entries) {
             $IDs[$#IDs+1] = $_;
         }
-        return @IDs;
-    }
+        \@IDs;
+    };
+
+    return @{$self->{$key}};
 }
 
 # -------------------------------------
@@ -162,7 +179,7 @@ sub commentids {
 
 sub _commenthash {
     my $self = shift;
-	my $url;
+	my $url = USEPERL;
 
     return %{ $self->{_commenthash} }	if($self->{_commenthash});
 	
@@ -171,114 +188,38 @@ sub _commenthash {
 	# different formats
 
 	if($self->{thread}) {
-		$url = USEPERL . "/comments.pl?sid=" . $self->{thread};
+		$url .= "/comments.pl?sid=" . $self->{thread};
 	} elsif($self->{entry}) {
 		my $user = $self->{j}->user;
-		$url = USEPERL . "/~$user/journal/" . $self->{entry};
+		$url .= "/~$user/journal/" . $self->{entry};
 	}
 
-#print STDERR "\n#url=[$url]\n";
 	my $content = $self->{j}->{ua}->request(GET $url)->content;
-	die "could not create comment list" unless $content;
+	return $self->{j}->error("could not create comment list") unless $content;
+
+#    print STDERR "\n#_commenthash: url=[$url]\n";
+#    print STDERR "\n#_commenthash: content=[$content]\n";
 
 	my %comments;
 	($self->{thread}) = ($content =~ m!sid=(\d+)!)	unless($self->{thread});
 
 	# main comment thread
-	while ( $content =~ m!
-			<A\s+NAME="(\d+)">						# comment id
-			<B>([^<]*)</B></A>						# subject
-			\s*\(Score:(\d+),?\s?\w*\).*?			# score
-			<A\s+HREF="//use.perl.org/~([^"]*)">.*?	# username
-			\((\d+)\)</A>.*?						# userid
-			on\s+([\d\s\.\:]+).*?					# date/time - on 2003.05.20 17:31
-			comments.pl?.*?;cid=(\1)">				# back reference to contain the block
-		!migxs ) {
+    my @queries = $content =~ m! href="//use.perl.org/comments.pl\?(.*?)" !sixg;
+    for my $query (@queries) {
 
-		my ($cid,$subject,$score,$username,$uid,$date) = ($1,$2,$3,$4,$5,$6);
-#print STDERR "\n#atts=[$cid,$subject,$score,$username,$uid,$date]\n";
-		my ($year, $month, $day, $hr, $mi) = $date =~ m!
-		  (\d+)\.(\d+)\.(\d+)	  .*?	(\d+):(\d+)
-		!smx;
+        my (@fields) = ($query =~ /sid=(\d+).*?pid=(\d+)(?:\#(\d+))?/);
+           (@fields) = ($query =~ /sid=(\d+).*?cid=(\d+)/)  unless(@fields);
 
-		$date = Time::Piece->strptime(
-			"$year $month $day ${hr}:$mi",
-			'%Y %m %d %H:%M'
-		);
+        my $cid = $fields[2] ? $fields[2] : $fields[1];
+        my $pid = $fields[2] ? $fields[1] : undef;
+#    print STDERR "\n#_commenthash: cid=[$cid], pid=[$pid]\n";
 
-		next unless defined $cid && $cid;
-		$comments{$1} = WWW::UsePerl::Journal::Comment->new(
-                j       => $self->{j},
-                id      => $cid,
-                subject => $subject,
-                score   => $score,
-                user    => $username,
-                uid     => $uid,
-                date    => $date,
-                tid     => $self->{thread},
-		);
-	}
-
-	# Note:
-	# Due to the different formats the sub-comments can appear in,
-	# we search for all PID strings first, then match each one against
-	# the different formats.
-
-	my @pids = ( $content =~ 
-			m!
-			(pid=\d+\#\d+)					# parent/comment id
-			!migxs
-		);
-
-	foreach ( @pids ) {
-		my ($pid,$cid) = (m!pid=(\d+)\#(\d+)!);
-#print STDERR "\n#pid=[$pid], cid=[$cid]\n";
-#print STDERR "\n#content=[$content]\n";
-
-		my ($string,$format);
-		my ($subject,$username,$score,$date) = ($content =~
-				m!
-				<BLOCKQUOTE><LI><A\s+HREF="//use.perl.org/comments.pl?.*?;
-				pid=$pid\#$cid">					# parent/comment id
-				(.*?)</A>.*?						# subject
-				by\s+(.*?)\n.*?						# username
-				\(Score:(\d+),?\s?\w*\)</FONT>\s+	# score
-				<FONT[^>]+>(.*?)</FONT>				# date/time 
-				!mixs);
-
-#print STDERR "\n#fields=[$subject,$username,$score,$date]\n";
-
-		if(my @re = $date =~ m!\w+\s+(\w+)\s+(\d+),.*?(\d+):(\d)\s+([AP]M)!s) {
-			my ($dotw, $month, $day, $hr, $mi, $amp) = @re;
-			$hr += 12 if ($amp eq 'PM');
-			$hr = 0 if $hr == 24;
-#			$year = (localtime)[5];	# this is a guess hack due to this format not depicting the year
-
-#print STDERR "\n#date=[$date] [$dotw,$month,$day,$hr,$mi,$amp]\n";
-			$string = "$dotw $month $day ${hr}:$mi";
-			$format = '%A %B %d %H:%M';
-
-		} else {
-			my ($year, $month, $day, $hr, $mi) = $date =~ m!
-			  (\d+)\.(\d+)\.(\d+)	  .*?	(\d+):(\d+)
-			!smx;
-			$string = "$year $month $day ${hr}:$mi";
-			$format = '%Y %m %d %H:%M';
-		}
-
-		$date = Time::Piece->strptime($string,$format);
-
-
-		next unless defined $cid;
+		next if(!$cid || $comments{$cid});
 		$comments{$cid} = WWW::UsePerl::Journal::Comment->new(
                 j       => $self->{j},
-				parent	=> $pid,
                 id      => $cid,
-                subject => $subject,
-                user    => $username,
-                score   => $score,
-                date    => $date,
                 tid     => $self->{thread},
+                parent  => $pid
 		);
 	}
 
@@ -288,7 +229,7 @@ sub _commenthash {
 
 # sort methods
 
-sub _ascender { $a <=> $b }
+sub _ascender  { $a <=> $b }
 sub _descender { $b <=> $a }
 
 1;
@@ -297,16 +238,19 @@ __END__
 
 =back
 
-=head1 BUGS, PATCHES & FIXES
+=head1 SUPPORT
 
 There are no known bugs at the time of this release. However, if you spot a
-bug or are experiencing difficulties, that is not explained within the POD
-documentation, please send an email to barbie@cpan.org or submit a bug to the
-RT system (http://rt.cpan.org/). However, it would help greatly if you are 
-able to pinpoint problems or even supply a patch. 
+bug or are experiencing difficulties that are not explained within the POD
+documentation, please submit a bug to the RT system (see link below). However,
+it would help greatly if you are able to pinpoint problems or even supply a 
+patch. 
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
-be forthcoming, please feel free to (politely) remind me.
+be forthcoming, please feel free to (politely) remind me by sending an email
+to barbie@cpan.org .
+
+RT: L<http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-UsePerl-Journal-Thread>
 
 =head1 SEE ALSO
 
@@ -328,7 +272,6 @@ and giving me the idea to extend it further.
 =head1 COPYRIGHT AND LICENSE
 
   Copyright (C) 2003-2005 Barbie for Miss Barbell Productions
-  All Rights Reserved.
 
   Distributed under GPL v2. See F<COPYING> included with this distibution.
 

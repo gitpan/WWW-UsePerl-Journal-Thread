@@ -11,7 +11,7 @@ DEPENDENCIES
 
 The distribution requires the following modules:
 
-  WWW::UsePerl::Journal => 0.11,
+  WWW::UsePerl::Journal => 0.15,
   LWP::UserAgent        => 0,
   HTTP::Request::Common => 0
   Time::Piece           => 0,
@@ -31,14 +31,17 @@ To install this module type the following:
 
 AUTHOR
 
-Barbie, <modules@missbarbell.co.uk>, http://birmingham.pm.org/
+  Barbie, <barbie@cpan.org>
+  for Miss Barbell Productions <http://www.missbarbell.co.uk>.
 
-Miss Barbell Productions.
+COPYRIGHT AND LICENSE
 
-COPYRIGHT AND LICENCE
+  Copyright (C) 2003-2007 Barbie for Miss Barbell Productions.
 
-Copyright (C) 2003-2005 Barbie & Miss Barbell Productions.
-All Rights Reserved.
+  This module is free software; you can redistribute it and/or 
+  modify it under the same terms as Perl itself.
 
-Distributed under GPL v2. See F<COPYING> included with this distibution.
+The full text of the licenses can be found in the Artistic and
+COPYING files included with this module, or in perlartistic and
+perlgpl in Perl 5.8.1 or later.
 

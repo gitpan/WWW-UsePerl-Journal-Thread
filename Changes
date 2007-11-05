@@ -1,5 +1,19 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.09	31/10/2007
+	- relaxed date testing, as timezones can affect the date/time value
+	  returned.
+	- This is mostly a documentation and license update release.
+	- Upped some of the versions of required modules.
+	- New META.yml and associated tests added
+	- Changed all instances of LICENCE to LICENSE.
+	- Added LICENSE file.
+	- Added an examples directory
+	- POD/README updates.
+	- UsePerl has changed its comment formatting.
+	- simplified thread and comment storage respectively.
+	- added error methods to access faults rather than die-ing.
+
 0.08	Tue Apr 05 2005
 	- Updated test to reflect changes in use.perl
 	- Added test scripts
