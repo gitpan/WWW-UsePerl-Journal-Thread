@@ -22,6 +22,7 @@ my $threadid  = 14740;		# these are for the same journal entry
 my $commentid = 22842;      #
 
 my $journal = WWW::UsePerl::Journal->new($username);
+$journal->debug(1); # turn debugging on
 
 
 ##
@@ -40,48 +41,66 @@ my $journal = WWW::UsePerl::Journal->new($username);
     is($thread->thread(),$threadid);
 
     my @cids = $thread->commentids();
-    cmp_ok(scalar(@cids) => 'gt' => 1);		# there's at least 3
+    unless(@cids) {
+        diag("\nurl=[http://use.perl.org/comments.pl?sid=$threadid]");
+        diag($journal->log());
+        $journal->log('clear'=>1);
+    }
 
-#    diag("cids=[".(join(",",@cids))."]");
-
-    my $comment = $thread->comment($commentid);
-    isa_ok($comment,'WWW::UsePerl::Journal::Comment');
     SKIP: {
-        skip 'Cannot access comment in thread',8 unless(defined $comment);
+        skip 'Cannot access comments from thread',10 unless(@cids);
 
-        my %hash_is = (
-            id		=> 22842,	
-            subject	=> 'Locales',
-            user	=> 'Dom2',
-            uid		=> 2981,
-        );
+        cmp_ok(scalar(@cids) => 'gt' => 1);		# there's at least 3
 
-        my %hash_like = (
-            content	=> qr|Turn them off now.  They\'ll do you no good at all.*?<p>-Dom|,
-            score	=> qr!\d+!,
-        );
+        my $comment = $thread->comment($commentid);
+        isa_ok($comment,'WWW::UsePerl::Journal::Comment');
+        SKIP: {
+            skip 'Cannot access comment in thread',8 unless(defined $comment);
 
-        foreach my $item (sort keys %hash_is) {
-            my $value = $comment->$item();
-            is($value,$hash_is{$item},"... testing $item");
+            my %hash_is = (
+                id		=> 22842,	
+                subject	=> 'Locales',
+                user	=> 'Dom2',
+                uid		=> 2981,
+            );
+
+            my %hash_like = (
+                content	=> qr|Turn them off now.*?<p>-Dom|,
+                score	=> qr!\d+!,
+            );
+
+            foreach my $item (sort keys %hash_is) {
+                my $value = $comment->$item();
+                if(!is($value,$hash_is{$item},"... testing $item")) {
+                    diag('error: '.$journal->error());
+                    diag('log: '.$journal->log());
+                    $journal->log('clear'=>1);
+                }
+            }
+            foreach my $item (sort keys %hash_like) {
+                my $value = $comment->$item();
+                if(!like($value,$hash_like{$item},"... testing $item")) {
+                    diag('error: '.$journal->error());
+                    diag('log: '.$journal->log());
+                    $journal->log('clear'=>1);
+                }
+            }
+
+            my $s = $comment->date()->epoch;
+            my $diff = abs($s - 1060186500);
+            if($diff < 12 * 3600) {         # +/- 12 hours for a 24 hour period
+                ok(1, "date check");
+            } else {
+                is $s => 1060186500, "date check";
+            }
+
+            my $text = "$comment";	# stringyfied version
+            is($text,$comment->content());
         }
-        foreach my $item (sort keys %hash_like) {
-            my $value = $comment->$item();
-            like($value,$hash_like{$item},"... testing $item");
-        }
-
-        my $s = $comment->date()->epoch;
-        my $diff = abs($s - 1060186500);
-        if($diff < 12 * 3600) {         # +/- 12 hours for a 24 hour period
-            ok(1, "date check");
-        } else {
-            is $s => 1060186500, "date check";
-        }
-
-        my $text = "$comment";	# stringyfied version
-        is($text,$comment->content());
     }
 }
+
+$journal->log('clear' => 1);
 
 ##
 ## Tests based on a entryid
@@ -96,43 +115,53 @@ my $journal = WWW::UsePerl::Journal->new($username);
     isa_ok($thread,'WWW::UsePerl::Journal::Thread');
 
     @cids = $thread->commentids();
-    is((@cids > 2),1);		# there's at least 3
-
-    is($thread->thread(),$threadid);
-
-    $commentid = 22847;
-    $comment = $thread->comment($commentid);
-    isa_ok($comment,'WWW::UsePerl::Journal::Comment');
-
-    %hash_is = (
-        id		=> $commentid,	
-        subject	=> 'Re:Locales',
-        user	=> 'barbie',
-        uid		=> 2653,
-    );
-
-    %hash_like = (
-        content	=> qr|From the experience I\'ve just had that would be a good idea.|,
-        score	=> qr!\d+!,
-    );
-
-    foreach my $item (sort keys %hash_is) {
-        my $value = $comment->$item();
-        is($value,$hash_is{$item},"... testing $item");
-    }
-    foreach my $item (sort keys %hash_like) {
-        my $value = $comment->$item();
-        like($value,$hash_like{$item},"... testing $item");
+    unless(@cids) {
+        diag("\nurl=[http://use.perl.org/~$username/journal/$entryid]");
+        diag($journal->log());
+        $journal->log('clear'=>1);
     }
 
-    $s = $comment->date()->epoch;
-    $diff = abs($s - 1060220100);
-    if($diff < 12 * 3600) {         # +/- 12 hours for a 24 hour period
-        ok(1, "date check");
-    } else {
-        is $s => 1060220100, "date check";
-    }
+    SKIP: {
+        skip 'Cannot access comments from entry',11 unless(@cids);
 
-    $text = "$comment";	# stringyfied version
-    is($text,$comment->content());
+        is((@cids > 2),1);		# there's at least 3
+
+        is($thread->thread(),$threadid);
+
+        $commentid = 22847;
+        $comment = $thread->comment($commentid);
+        isa_ok($comment,'WWW::UsePerl::Journal::Comment');
+
+        %hash_is = (
+            id		=> $commentid,	
+            subject	=> 'Re:Locales',
+            user	=> 'barbie',
+            uid		=> 2653,
+        );
+
+        %hash_like = (
+            content	=> qr|From the experience I\'ve just had that would be a good idea.|,
+            score	=> qr!\d+!,
+        );
+
+        foreach my $item (sort keys %hash_is) {
+            my $value = $comment->$item();
+            is($value,$hash_is{$item},"... testing $item");
+        }
+        foreach my $item (sort keys %hash_like) {
+            my $value = $comment->$item();
+            like($value,$hash_like{$item},"... testing $item");
+        }
+
+        $s = $comment->date()->epoch;
+        $diff = abs($s - 1060220100);
+        if($diff < 12 * 3600) {         # +/- 12 hours for a 24 hour period
+            ok(1, "date check");
+        } else {
+            is $s => 1060220100, "date check";
+        }
+
+        $text = "$comment";	# stringyfied version
+        is($text,$comment->content());
+    }
 }

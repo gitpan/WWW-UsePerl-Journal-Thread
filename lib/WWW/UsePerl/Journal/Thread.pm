@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 #----------------------------------------------------------------------------
 
@@ -105,6 +105,7 @@ sub new {
         j       => undef,
         thread  => undef,	# thread id
         entry	=> undef,	# entry id
+        debug   => 0
     );
     my %opts = (@_);
 
@@ -156,15 +157,13 @@ sub commentids {
 	my $hash = shift;
 	my ($key,$sorter) = ('_commentids_asc',\&_ascender);
    	   ($key,$sorter) = ('_commentids_dsc',\&_descender)	if(defined $hash && $hash->{descending});
-	   ($key,$sorter) = ('_commentids_thd',sub{})			if(defined $hash && $hash->{threaded});
+	   ($key,$sorter) = ('_commentids_thd',sub{-1})			if(defined $hash && $hash->{threaded});
 
     $self->{$key} ||= do {
         my %entries = $self->_commenthash;
         my @IDs;
 
-        foreach (sort $sorter keys %entries) {
-            $IDs[$#IDs+1] = $_;
-        }
+        $IDs[$#IDs+1] = $_  for(sort $sorter keys %entries);
         \@IDs;
     };
 
@@ -172,7 +171,7 @@ sub commentids {
 }
 
 # -------------------------------------
-# The Private Subs
+# The Private Methods
 
 # name: commenthash
 # desc: Returns a hash of WWW::UsePerl::Journal::Comment objects
@@ -192,13 +191,17 @@ sub _commenthash {
 	} elsif($self->{entry}) {
 		my $user = $self->{j}->user;
 		$url .= "/~$user/journal/" . $self->{entry};
-	}
+	} else {
+        return; # nothing to get a handle on!
+    }
 
 	my $content = $self->{j}->{ua}->request(GET $url)->content;
 	return $self->{j}->error("could not create comment list") unless $content;
 
-#    print STDERR "\n#_commenthash: url=[$url]\n";
-#    print STDERR "\n#_commenthash: content=[$content]\n";
+    if($self->{j}->debug) {
+        $self->{j}->log('mess' => "\n#_commenthash: url=[$url]\n");
+        $self->{j}->log('mess' => "\n#_commenthash: content=[$content]\n");
+    }
 
 	my %comments;
 	($self->{thread}) = ($content =~ m!sid=(\d+)!)	unless($self->{thread});
@@ -212,9 +215,11 @@ sub _commenthash {
 
         my $cid = $fields[2] ? $fields[2] : $fields[1];
         my $pid = $fields[2] ? $fields[1] : undef;
-#    print STDERR "\n#_commenthash: cid=[$cid], pid=[$pid]\n";
+        if($self->{j}->debug) {
+            $self->{j}->log('mess' => "\n#_commenthash: cid=[".($cid||'undef')."], pid=[".($pid||'undef')."]\n");
+        }
 
-		next if(!$cid || $comments{$cid});
+		next if(!$cid || defined $comments{$cid});
 		$comments{$cid} = WWW::UsePerl::Journal::Comment->new(
                 j       => $self->{j},
                 id      => $cid,

@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                   WWW-UsePerl-Journal
-version:                0.09
+version:                0.10
 abstract:               Handles the retrieval of UsePerl journal comment threads..
 author:
   - Barbie <barbie@cpan.org>
@@ -10,26 +10,26 @@ distribution_type:      module
 installdirs:            site
 
 requires:
-  HTTP::Request::Common:    0
-  LWP::UserAgent:           0
-  Test::More:               0.47
-  Time::Piece:              0
-  WWW::UsePerl::Journal:    0.15
+  HTTP::Request::Common:  0
+  LWP::UserAgent:         0
+  Test::More:             0.47
+  Time::Piece:            0
+  WWW::UsePerl::Journal:  0.20
 recommends:
-  Test::More:           0.47
-  Test::Pod:            1.00
-  Test::Pod::Coverage:  0.08
-  Test::YAML::Valid:    0.03
+  Test::More:             0.47
+  Test::Pod:              1.00
+  Test::Pod::Coverage:    0.08
+  Test::YAML::Valid:      0.06
 build_requires:
-    Test::More:         0.47
+  Test::More:             0.47
 
 provides:
   WWW::UsePerl::Journal::Thread:
     file:     lib/WWW/UsePerl/Journal/Thread.pm
-    version:  0.09
+    version:  0.10
   WWW::UsePerl::Journal::Comment:
     file:     lib/WWW/UsePerl/Journal/Comment.pm
-    version:  0.09
+    version:  0.10
 no_index:
   directory:
     - t

@@ -4,7 +4,7 @@ WriteMakefile(
     'NAME'		=> 'WWW::UsePerl::Journal::Thread',
     'VERSION_FROM'	=> 'lib/WWW/UsePerl/Journal/Thread.pm',
     'PREREQ_PM'		=> {
-		WWW::UsePerl::Journal => 0.19,
+		WWW::UsePerl::Journal => 0.20,
 		LWP::UserAgent        => 0,
 		HTTP::Request::Common => 0,
 		Time::Piece           => 0,

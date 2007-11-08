@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 #----------------------------------------------------------------------------
 
@@ -82,7 +82,7 @@ use -E<gt>content instead.
 
 sub stringify {
     my $self = shift;
-    $self->content();
+    return $self->content();
 }
 
 =item new()
@@ -153,8 +153,10 @@ sub AUTOLOAD {
 	
 	*$name = sub {
 			my $self = shift;
-			$self->_get_content()	unless($self->{$name});
-			return unless($self->{$name});
+			my $done = 1;
+            $done = $self->_get_content()	unless($self->{$name});
+            return  unless(defined $done);              # something went wrong
+			return  unless(defined $self->{$name});     # couldn't resolve parameter
 			$self->{$name} =~ s/^\s+//;					# remove leading whitespace
 			$self->{$name} =~ s/\s+$//;					# remove trailing whitespace
 			return $self->{$name};
@@ -182,8 +184,10 @@ sub _get_content {
     my $url = USEPERL . "/comments.pl?sid=$thread&cid=$ID";
     my $content = $self->{j}->{ua}->request(GET $url)->content;
 
-#    print STDERR "\n#_get_content: url=[$url]\n";
-#    print STDERR "\n#_get_content: content=[$content]\n";
+    if($self->{j}->debug) {
+        $self->{j}->log('mess' => "\n#_get_content: url=[$url]\n");
+        $self->{j}->log('mess' => "\n#_get_content: content=[$content]\n");
+    }
 
     return $self->{j}->error("Error getting entry") unless $content;
     return $self->{j}->error( "Comment $ID does not exist") 
@@ -195,18 +199,22 @@ sub _get_content {
 	$content =~ s/\n//g;
 	my @fields = ( $content =~ m!
             <li\s+id="tree_(\d+)"\s+class="comment">        # comment id
-    .*?     <h4><a\s+id="comment_link_\1"[^>]+>([^<]*)</a>  # subject
+    .*?     <h4><a[^>]+>([^<]+)</a>                         # subject
     .*?     <span\s+id="comment_score_\1"\s+class="score">
             \(Score:(\d+),?\s?\w*\)</span></h4>             # score
 	.*?		<a\s+href="//use.perl.org/~([^\"/]*)/?">        # username
 	.*?		\((\d+)\)</a>?						            # userid
-	.*?		on\s+([\w\d\s\@,.:]+)      					    # date/time - "2003.05.20 17:31" or "Friday August 08 2003, @01:51PM"
+	.*?		on\s+([\w\d\s\@,.:]+)   					    # date/time - "2003.05.20 17:31" or "Friday August 08 2003, @01:51PM"
     .*?     <div\s+id="comment_body_\1">(.*?)</div>         # text
     .*?     (<a\s+href="//use.perl.org/comments.pl?sid=(\d+).*?pid=\1">Reply to This</a>)?
     .*?     (?:<a\s+href="//use.perl.org/comments.pl?sid=\8.*?cid=(\d+)">Parent</a>)?
         !mixs );
 
-	return  unless(@fields);
+    if($self->{j}->debug) {
+        $self->{j}->log('mess' => "\n#_get_content: fields=[".(join("][",map {$_||''} @fields))."]\n");
+    }
+
+    return  unless(@fields);
 
 	my ($year, $month, $day, $hr, $mi) = $fields[5] =~ m! (\d+)\.(\d+)\.(\d+) .*? (\d+):(\d+) !smx;
     unless($day) {
@@ -218,6 +226,9 @@ sub _get_content {
         $hr = 0 if $hr == 24;
     }
 
+    if($self->{j}->debug) {
+        $self->{j}->log('mess' => "\n#_get_content: date=[$year $month $day ${hr}:$mi]\n");
+    }
 	$self->{date} = Time::Piece->strptime( "$year $month $day ${hr}:$mi", '%Y %m %d %H:%M' );
 
 	# just in case we overwrite good stuff
@@ -227,11 +238,13 @@ sub _get_content {
 	$self->{uid}		= $fields[4]	unless($self->{uid});
 	$self->{content}	= $fields[6]	unless($self->{content});
 
-	return	unless($self->{content});				# What no content!
+	return 1  unless($self->{content});				# What no content!
 
 	$self->{content} =~ s!(\s+<(?:p|br /)>)*$!!gi;	# remove trailing whitespace formatting
 	$self->{content} =~ s!\s+(<(p|br /)>)!$1!gi;	# remove whitespace before whitespace formatting
 	$self->{content} =~ s!(<(p|br /)>){2,}!<p>!gi;	# remove repeated whitespace formatting
+
+    return 1;
 }
 
 sub DESTROY {}

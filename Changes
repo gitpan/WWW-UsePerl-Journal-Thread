@@ -1,5 +1,12 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.10	07/11/2007
+	- several fails pointed at bad error handling in the event of a webpage
+	  not being returned. Further validation in the event of a page not
+	  being found. Thanks to David Cantrell for the diagnostics.
+	- bumped several prerequite versions in META.yml
+	- incorporated internal debugging as per WUJ.
+
 0.09	31/10/2007
 	- relaxed date testing, as timezones can affect the date/time value
 	  returned.
