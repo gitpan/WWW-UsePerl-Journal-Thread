@@ -1,5 +1,12 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.11	29/09/2008
+	- updated optional tests.
+	- upgraded WWW-UsePerl-Journal required version to 0.22.
+	- fixed regex to match comments for updated use.perl pages.
+	- added a useperl.pl script to examples, which can extract all the 
+	  journal posts and associated comments, for a given user.
+
 0.10	07/11/2007
 	- several fails pointed at bad error handling in the event of a webpage
 	  not being returned. Further validation in the event of a page not

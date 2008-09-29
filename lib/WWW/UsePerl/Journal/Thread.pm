@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 #----------------------------------------------------------------------------
 
@@ -119,7 +119,7 @@ sub new {
 
 =item thread()
 
-Returns the current thread id. 
+Returns the current thread id.
 
 =cut
 
@@ -146,8 +146,8 @@ sub comment {
 
 Returns an ascending array of the comment IDs.
 
-Can take an optional hash containing; {descending=>1} to return a descending 
-list of comment IDs, {ascending=>1} to return an ascending list or 
+Can take an optional hash containing; {descending=>1} to return a descending
+list of comment IDs, {ascending=>1} to return an ascending list or
 {threaded=>1} to return a thread ordered list. 'ascending' being the default.
 
 =cut
@@ -181,8 +181,8 @@ sub _commenthash {
 	my $url = USEPERL;
 
     return %{ $self->{_commenthash} }	if($self->{_commenthash});
-	
-	# URL depends upon which id we've been given, as thread and entry 
+
+	# URL depends upon which id we've been given, as thread and entry
 	# are different, but both can still return the thread list, just in
 	# different formats
 
@@ -248,8 +248,8 @@ __END__
 There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties that are not explained within the POD
 documentation, please submit a bug to the RT system (see link below). However,
-it would help greatly if you are able to pinpoint problems or even supply a 
-patch. 
+it would help greatly if you are able to pinpoint problems or even supply a
+patch.
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
 be forthcoming, please feel free to (politely) remind me by sending an email
@@ -271,7 +271,7 @@ for Miss Barbell Productions L<http://www.missbarbell.co.uk>.
 
 =head1 CREDITS
 
-Russell Matbouli, for creating WWW::UsePerl::Journal in the first place 
+Russell Matbouli, for creating WWW::UsePerl::Journal in the first place
 and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE

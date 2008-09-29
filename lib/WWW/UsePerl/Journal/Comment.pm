@@ -4,7 +4,7 @@ use strict;
 use warnings;
 
 use vars qw($VERSION $AUTOLOAD);
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 #----------------------------------------------------------------------------
 
@@ -87,8 +87,8 @@ sub stringify {
 
 =item new()
 
-Each comment is retrieved as an object. Note that the parent object 
-(from WWW::UsePerl::Journal), thread id and comment id are mandatory 
+Each comment is retrieved as an object. Note that the parent object
+(from WWW::UsePerl::Journal), thread id and comment id are mandatory
 requirements to create the object.
 
 =cut
@@ -130,9 +130,9 @@ sub new {
 
 The following accessor methods are available:
 
-  id  
-  date  
-  subject  
+  id
+  date
+  subject
   user
   uid
   score
@@ -150,7 +150,7 @@ sub AUTOLOAD {
 	my $name = $AUTOLOAD;
 	$name =~ s/^.*:://;
 	die "Unknown sub $AUTOLOAD\n"	unless($autosubs{$name});
-	
+
 	*$name = sub {
 			my $self = shift;
 			my $done = 1;
@@ -190,7 +190,7 @@ sub _get_content {
     }
 
     return $self->{j}->error("Error getting entry") unless $content;
-    return $self->{j}->error( "Comment $ID does not exist") 
+    return $self->{j}->error( "Comment $ID does not exist")
         if $content =~ m#Nothing for you to see here.  Please move along.#i;
 
     # remember there are different presentations for dates!!!!
@@ -198,16 +198,14 @@ sub _get_content {
 	my ($string,$format);
 	$content =~ s/\n//g;
 	my @fields = ( $content =~ m!
-            <li\s+id="tree_(\d+)"\s+class="comment">        # comment id
-    .*?     <h4><a[^>]+>([^<]+)</a>                         # subject
+            <li\s+id="tree_(\d+)"\s+class="comment[^"]*">    # comment id
+    .*?     <h4><a[^>]+>([^<]+)</a>                             # subject
     .*?     <span\s+id="comment_score_\1"\s+class="score">
-            \(Score:(\d+),?\s?\w*\)</span></h4>             # score
+    .*?     Score:(\d+).*?</h4>                                 # score
 	.*?		<a\s+href="//use.perl.org/~([^\"/]*)/?">        # username
 	.*?		\((\d+)\)</a>?						            # userid
 	.*?		on\s+([\w\d\s\@,.:]+)   					    # date/time - "2003.05.20 17:31" or "Friday August 08 2003, @01:51PM"
     .*?     <div\s+id="comment_body_\1">(.*?)</div>         # text
-    .*?     (<a\s+href="//use.perl.org/comments.pl?sid=(\d+).*?pid=\1">Reply to This</a>)?
-    .*?     (?:<a\s+href="//use.perl.org/comments.pl?sid=\8.*?cid=(\d+)">Parent</a>)?
         !mixs );
 
     if($self->{j}->debug) {
@@ -260,8 +258,8 @@ __END__
 There are no known bugs at the time of this release. However, if you spot a
 bug or are experiencing difficulties that are not explained within the POD
 documentation, please submit a bug to the RT system (see link below). However,
-it would help greatly if you are able to pinpoint problems or even supply a 
-patch. 
+it would help greatly if you are able to pinpoint problems or even supply a
+patch.
 
 Fixes are dependant upon their severity and my availablity. Should a fix not
 be forthcoming, please feel free to (politely) remind me by sending an email
@@ -278,7 +276,7 @@ F<http://use.perl.org/>
 
 =head1 CREDITS
 
-Russell Matbouli, for creating L<WWW::UsePerl::Journal> in the first place 
+Russell Matbouli, for creating L<WWW::UsePerl::Journal> in the first place
 and giving me the idea to extend it further.
 
 =head1 AUTHOR
@@ -290,7 +288,7 @@ and giving me the idea to extend it further.
 
   Copyright (C) 2003-2007 Barbie for Miss Barbell Productions.
 
-  This module is free software; you can redistribute it and/or 
+  This module is free software; you can redistribute it and/or
   modify it under the same terms as Perl itself.
 
 The full text of the licenses can be found in the F<Artistic> and
