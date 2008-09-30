@@ -1,5 +1,9 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.12	current
+	- fixed useperl.pl (v0.02) script in examples.
+	- fixed META.yml - distribution name
+
 0.11	29/09/2008
 	- updated optional tests.
 	- upgraded WWW-UsePerl-Journal required version to 0.22.

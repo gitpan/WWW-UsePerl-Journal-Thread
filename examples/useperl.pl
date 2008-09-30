@@ -2,7 +2,7 @@
 use strict;
 $|++;
 
-my $VERSION = '0.01';
+my $VERSION = '0.02';
 
 #----------------------------------------------------------------------------
 
@@ -63,13 +63,13 @@ for my $id (@ids) {
         my $thread = WWW::UsePerl::Journal::Thread->new(j => $journal, entry => $id);
         my @cids = $thread->commentids();
         for my $cid (@cids) {
-            my $ccontent => $thread->comment($cid)->content();
+            my $ccontent = $thread->comment($cid)->content();
             next    unless($ccontent);
             $ccontent =~ s!\t! !g;
 
             my $comment = {
                 user    => $thread->comment($cid)->user,
-                date    => $thread->comment($cid)->date,
+                date    => $thread->comment($cid)->date->epoch,
                 subject => $thread->comment($cid)->subject,
                 content => $ccontent
             };
@@ -84,13 +84,13 @@ for my $id (@ids) {
 
     # save for later
     my $post = {
-        id      => $id,
-        date    => $entry->date,
-        subject => $entry->subject,
-        content => $content,
-        comments => \@comments
+        id       => $id,
+        date     => $entry->date->epoch,
+        subject  => $entry->subject,
+        content  => $content,
     };
 
+    $post->{comments} = \@comments  if(@comments);
     push @entries, $post    if($options{yaml});
 
     if($options{verbose}) {
@@ -115,6 +115,9 @@ for my $id (@ids) {
 write_file($options{yaml}, Dump(\@entries)) if($options{yaml});
 
 #print "LOG: ".$journal->log()."\n";
+
+# -------------------------------------
+# Functions
 
 sub init_options {
     GetOptions( \%options,
