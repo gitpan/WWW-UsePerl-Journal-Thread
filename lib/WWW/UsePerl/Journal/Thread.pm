@@ -4,13 +4,13 @@ use strict;
 use warnings;
 
 use vars qw($VERSION);
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 #----------------------------------------------------------------------------
 
 =head1 NAME
 
-WWW::UsePerl::Journal::Thread - Handles the retrieval of UsePerl journal comment threads.
+WWW::UsePerl::Journal::Thread - Handles the retrieval of UsePerl journal comment threads
 
 =head1 SYNOPSIS
 
@@ -20,9 +20,13 @@ WWW::UsePerl::Journal::Thread - Handles the retrieval of UsePerl journal comment
   my $journal = WWW::UsePerl::Journal->new('barbie');
   my @entries = $journal->entryids();
 
-  my $thread = WWW::UsePerl::Journal::Thread->new(thread => $entries[0]);
+  my $thread = WWW::UsePerl::Journal::Thread->new(
+        j       => $journal, 
+        thread  => $entries[0]
+  );
+
   my @comments = $thread->commentids();
-  foreach my $id (@comments) {
+  for my $id (@comments) {
     printf "\n----\n%s [%d %s %d] %s",
 	  $thread->comment($id)->subject(),
 	  $thread->comment($id)->score(),
@@ -43,20 +47,27 @@ Using WWW::UsePerl::Journal, journal entry ids can be obtain. Each entry id
 can be used to obtain a comment thread. Each comment property is accessed
 via a comment object from within the thread.
 
+Note that as on late 2010 use.perl was decommissioned. A read-only version of
+the site now exists on the perl.org servers, and a full database backup is
+also available if you wish to host your own use.perl archive. 
+
+A future edition of this distribution will allow a DBI interface to a local
+database to retrieve journal entries.
+
 =cut
 
 # -------------------------------------
 # Library Modules
 
-use LWP::UserAgent;
 use HTTP::Request::Common;
+use LWP::UserAgent;
 use Time::Piece;
 use WWW::UsePerl::Journal::Comment;
 
 # -------------------------------------
 # Variables
 
-use constant USEPERL => 'http://use.perl.org';
+use constant USEPERL => 'http://use.perl.org/use.perl.org';
 
 my %months = (
 	'January'   => 1,
@@ -74,48 +85,52 @@ my %months = (
 );
 
 # -------------------------------------
-# The Public Interface Subs
+# Public Interface
 
-=head1 METHODS
+=head1 PUBLIC INTERFACE
+
+=head2 The Constructor
 
 =over 4
 
-=item new()
+=item new
 
   use WWW::UsePerl::Journal;
   my $journal = WWW::UsePerl::Journal->new('barbie');
 
   use WWW::UsePerl::Journal::Thread;
-  my $j = WWW::UsePerl::Journal::Thread-E<gt>new(j => $journal, entry => $entryid);
+  my $j = WWW::UsePerl::Journal::Thread->new(
+            j       => $journal, 
+            eid     => $entryid,
+  );
 
-  use WWW::UsePerl::Journal::Thread;
-  my $j = WWW::UsePerl::Journal::Thread-E<gt>new(j => $journal, thread => $threadid);
+Creates an thread instance for the specified journal entry. An entry ID 
+returned from $journal->entryids() must use the entry => $entryid form to 
+obtain the correct thread.
 
-Creates an thread instance for the specified journal entry. Note that an entry ID
-and thread ID are different numbers. An entry ID returned from $journal->entryids()
-must use the entry => $entryid form to obtain the correct thread.
+=back
 
 =cut
 
 sub new {
-    my $class = shift;
-#    $class = ref($class) || $class;
+    my ($class,%opts) = @_;
 
-    my %defaults = (
-        j       => undef,
-        thread  => undef,	# thread id
-        entry	=> undef,	# entry id
-        debug   => 0
-    );
-    my %opts = (@_);
+    for(qw/j eid/) {
+    	return	unless(exists $opts{$_});
+    }
 
     die "No parent object"
-	    unless exists $opts{j} and $opts{j}->isa('WWW::UsePerl::Journal');
+	    unless $opts{j}->isa('WWW::UsePerl::Journal');
 
-    my $self = bless {%defaults, %opts}, $class;
+    my %atts = map {$_ => $opts{$_}} qw(j eid);
+    my $self = bless \%atts, $class;
 
     return $self;
 }
+
+=head2 Methods
+
+=over 4
 
 =item thread()
 
@@ -150,21 +165,21 @@ Can take an optional hash containing; {descending=>1} to return a descending
 list of comment IDs, {ascending=>1} to return an ascending list or
 {threaded=>1} to return a thread ordered list. 'ascending' being the default.
 
+=back
+
 =cut
 
 sub commentids {
-    my $self = shift;
-	my $hash = shift;
+    my ($self,%hash) = @_;
+
 	my ($key,$sorter) = ('_commentids_asc',\&_ascender);
-   	   ($key,$sorter) = ('_commentids_dsc',\&_descender)	if(defined $hash && $hash->{descending});
-	   ($key,$sorter) = ('_commentids_thd',sub{-1})			if(defined $hash && $hash->{threaded});
+   	   ($key,$sorter) = ('_commentids_dsc',\&_descender)	if(%hash && $hash{descending});
+	   ($key,$sorter) = ('_commentids_thd',sub{-1})			if(%hash && $hash{threaded});
 
     $self->{$key} ||= do {
         my %entries = $self->_commenthash;
-        my @IDs;
-
-        $IDs[$#IDs+1] = $_  for(sort $sorter keys %entries);
-        \@IDs;
+        my @ids = sort $sorter keys %entries;
+        \@ids;
     };
 
     return @{$self->{$key}};
@@ -178,7 +193,6 @@ sub commentids {
 
 sub _commenthash {
     my $self = shift;
-	my $url = USEPERL;
 
     return %{ $self->{_commenthash} }	if($self->{_commenthash});
 
@@ -186,45 +200,45 @@ sub _commenthash {
 	# are different, but both can still return the thread list, just in
 	# different formats
 
-	if($self->{thread}) {
-		$url .= "/comments.pl?sid=" . $self->{thread};
-	} elsif($self->{entry}) {
-		my $user = $self->{j}->user;
-		$url .= "/~$user/journal/" . $self->{entry};
-	} else {
-        return; # nothing to get a handle on!
-    }
+    my $user = $self->{j}->user;
+	my $url = USEPERL . "/_$user/journal/$self->{eid}.html";
 
-	my $content = $self->{j}->{ua}->request(GET $url)->content;
-	return $self->{j}->error("could not create comment list") unless $content;
+	my $content;
+    eval { $content = $self->{j}->{ua}->request(GET $url)->content; };
+	return $self->{j}->error("could not create comment list") if($@ || !$content);
 
     if($self->{j}->debug) {
-        $self->{j}->log('mess' => "\n#_commenthash: url=[$url]\n");
-        $self->{j}->log('mess' => "\n#_commenthash: content=[$content]\n");
+        $self->{j}->log('mess' => "#_commenthash: url=[$url]\n");
+        $self->{j}->log('mess' => "#_commenthash: content=[$content]\n");
     }
 
-	my %comments;
-	($self->{thread}) = ($content =~ m!sid=(\d+)!)	unless($self->{thread});
-
 	# main comment thread
-    my @queries = $content =~ m! href="//use.perl.org/comments.pl\?(.*?)" !sixg;
-    for my $query (@queries) {
+	my %comments;
+    my @cids = $content =~ m! <div\s+id="comment_top_(\d+)"  !sixg;
+    if($self->{j}->debug) {
+        $self->{j}->log('mess' => "#cids: @cids\n");
+    }
 
-        my (@fields) = ($query =~ /sid=(\d+).*?pid=(\d+)(?:\#(\d+))?/);
-           (@fields) = ($query =~ /sid=(\d+).*?cid=(\d+)/)  unless(@fields);
+    ($self->{thread}) = $content =~ m!sid=(\d+)!;
 
-        my $cid = $fields[2] ? $fields[2] : $fields[1];
-        my $pid = $fields[2] ? $fields[1] : undef;
+    for my $cid (@cids) {
+
         if($self->{j}->debug) {
-            $self->{j}->log('mess' => "\n#_commenthash: cid=[".($cid||'undef')."], pid=[".($pid||'undef')."]\n");
+            $self->{j}->log('mess' => "\n#_commenthash: cid=[$cid]\n");
         }
 
-		next if(!$cid || defined $comments{$cid});
+		next if($comments{$cid});
+
+        my ($extract) = $content =~ m! (<ul\s+id="[^"]+"[^>]*>\s*<li\s+id="tree_$cid"\s+class="[^"]+">.*?<div\s+id="replyto_$cid"></div>) !six;
+        if($self->{j}->debug) {
+            $self->{j}->log('mess' => "\n#extract: [$extract]\n");
+        }
+
 		$comments{$cid} = WWW::UsePerl::Journal::Comment->new(
                 j       => $self->{j},
-                id      => $cid,
-                tid     => $self->{thread},
-                parent  => $pid
+                cid     => $cid,
+                eid     => $self->{eid},
+                extract => $extract
 		);
 	}
 
@@ -241,8 +255,6 @@ sub _descender { $b <=> $a }
 
 __END__
 
-=back
-
 =head1 SUPPORT
 
 There are no known bugs at the time of this release. However, if you spot a
@@ -251,7 +263,7 @@ documentation, please submit a bug to the RT system (see link below). However,
 it would help greatly if you are able to pinpoint problems or even supply a
 patch.
 
-Fixes are dependant upon their severity and my availablity. Should a fix not
+Fixes are dependent upon their severity and my availability. Should a fix not
 be forthcoming, please feel free to (politely) remind me by sending an email
 to barbie@cpan.org .
 
@@ -259,10 +271,10 @@ RT: L<http://rt.cpan.org/Public/Dist/Display.html?Name=WWW-UsePerl-Journal-Threa
 
 =head1 SEE ALSO
 
-L<WWW::UsePerl::Journal>,
-L<LWP>
+F<http://use.perl.org/use.perl.org>
 
-F<http://use.perl.org/>
+L<WWW::UsePerl::Journal>,
+L<WWW::UsePerl::Journal::Server>
 
 =head1 AUTHOR
 
@@ -276,8 +288,9 @@ and giving me the idea to extend it further.
 
 =head1 COPYRIGHT AND LICENSE
 
-  Copyright (C) 2003-2005 Barbie for Miss Barbell Productions
+  Copyright (C) 2003-2012 Barbie for Miss Barbell Productions
 
-  Distributed under GPL v2. See F<COPYING> included with this distibution.
+This module is free software; you can redistribute it and/or
+modify it under the Artistic Licence v2.
 
 =cut

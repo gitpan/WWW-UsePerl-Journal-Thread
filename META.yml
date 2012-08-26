@@ -1,35 +1,38 @@
 --- #YAML:1.0
 name:                   WWW-UsePerl-Journal-Thread
-version:                0.12
-abstract:               Handles the retrieval of UsePerl journal comment threads..
+version:                0.13
+abstract:               Handles the retrieval of UsePerl journal comment threads
 author:
   - Barbie <barbie@cpan.org>
 
-license:                perl
-distribution_type:      module
-installdirs:            site
+license:                  artistic_2
+distribution_type:        module
+installdirs:              site
 
 requires:
+  perl:                   5.006
+  Class::Accessor::Fast:  0
   HTTP::Request::Common:  0
   LWP::UserAgent:         0
-  Test::More:             0.47
-  Time::Piece:            0
+  Time::Piece:            1.07
   WWW::UsePerl::Journal:  0.22
 recommends:
-  Test::More:             0.47
+  Test::CPAN::Meta:       0
+  Test::CPAN::Meta::JSON: 0
   Test::Pod:              1.00
   Test::Pod::Coverage:    0.08
-  Test::CPAN::Meta:       0.12
 build_requires:
-  Test::More:             0.47
+  IO::File:               0
+  Test::Exception:        0
+  Test::More:             0.70
 
 provides:
   WWW::UsePerl::Journal::Thread:
     file:     lib/WWW/UsePerl/Journal/Thread.pm
-    version:  0.12
+    version:  0.13
   WWW::UsePerl::Journal::Comment:
     file:     lib/WWW/UsePerl/Journal/Comment.pm
-    version:  0.12
+    version:  0.13
 no_index:
   directory:
     - t

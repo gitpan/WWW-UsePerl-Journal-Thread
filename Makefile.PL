@@ -1,18 +1,30 @@
+#!/usr/bin/perl
+
+use strict;
+use warnings;
+use 5.006;
+
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-    'NAME'		=> 'WWW::UsePerl::Journal::Thread',
-    'VERSION_FROM'	=> 'lib/WWW/UsePerl/Journal/Thread.pm',
-    'PREREQ_PM'		=> {
-		WWW::UsePerl::Journal => 0.22,
-		LWP::UserAgent        => 0,
-		HTTP::Request::Common => 0,
-		Time::Piece           => 0,
-		Test::More            => 0.47,
-	},
-	NO_META			=> 1,
+    AUTHOR              => 'Barbie <barbie@cpan.org>',
+    NAME                => 'WWW::UsePerl::Journal::Thread',
+    VERSION_FROM        => 'lib/WWW/UsePerl/Journal/Thread.pm',
+    ABSTRACT            => 'Handles the retrieval of UsePerl journal comment threads',
+    NO_META             => 1,
+    PREREQ_PM           => {
 
-    ($] >= 5.005 ?    ## Add these new keywords supported since 5.005
-      (ABSTRACT	=> 'Handles the retrieval of UsePerl journal comment threads.',
-       AUTHOR	=> 'Barbie <modules@missbarbell.co.uk>') : ()),
+        # runtime prereqs
+        'Class::Accessor::Fast'     => 0,
+        'HTTP::Request::Common'     => 0,
+        'LWP::UserAgent'            => 0,
+        'Time::Piece'               => 1.07,
+		'WWW::UsePerl::Journal'     => 0.22,
+
+        # build/test prereqs
+        'IO::File'                  => 0,
+        'Test::Exception'           => 0,
+		'Test::More'                => 0.70,
+
+    }
 );

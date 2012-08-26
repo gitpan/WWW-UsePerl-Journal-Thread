@@ -1,8 +1,7 @@
-Artistic
-COPYING
 Changes
 LICENSE
 MANIFEST
+META.json
 META.yml
 Makefile.PL
 README
@@ -15,3 +14,6 @@ t/10thread.t
 t/90podtest.t
 t/91podcover.t
 t/94metatest.t
+t/95changedate.t
+t/96metatest.t
+t/lib/PingTest.pm
