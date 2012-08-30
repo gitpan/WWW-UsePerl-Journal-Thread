@@ -1,5 +1,8 @@
 Revision history for Perl extension WWW::UsePerl::Journal::Thread.
 
+0.14	2012-08-30
+	- fixed test count on skip.
+
 0.13	2012-08-26
 	- use.perl.org is now read only. 
 	  - thread id no longer supported.

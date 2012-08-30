@@ -154,7 +154,7 @@ SKIP: {
 ##
 
 SKIP: {
-	skip "Can't see a network connection", 27	if($pingtest);
+	skip "Can't see a network connection", 10	if($pingtest);
 
     my $username  = 'barbie';
     my $entryid   = 13956;		# 

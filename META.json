@@ -1,6 +1,6 @@
 {
     "name" : "WWW-UsePerl-Journal-Entry",
-    "version" : "0.13",
+    "version" : "0.14",
     "abstract" : "Handles the retrieval of UsePerl journal comment threads",
     "author" : [
         "Barbie <barbie@cpan.org>"
@@ -53,11 +53,11 @@
     "provides" : {
         "WWW::UsePerl::Journal::Thread" : {
             "file" : "lib/WWW/UsePerl/Journal/Thread.pm",
-            "version" : "0.13"
+            "version" : "0.14"
         },
         "WWW::UsePerl::Journal::Comment" : {
             "file" : "lib/WWW/UsePerl/Journal/Comment.pm",
-            "version" : "0.13"
+            "version" : "0.14"
         }
     }
 }
